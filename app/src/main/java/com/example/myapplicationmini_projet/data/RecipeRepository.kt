@@ -1,5 +1,9 @@
 package com.example.myapplicationmini_projet.data
 
+import android.content.Context
+import com.example.myapplicationmini_projet.data.local.RecipeDatabase
+import com.example.myapplicationmini_projet.data.local.RecipeEntity
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -7,6 +11,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RecipeRepository {
+    private lateinit var database: RecipeDatabase
+    fun init(context: Context) {
+        database = RecipeDatabase.getDatabase(context)
+    }
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -34,11 +42,33 @@ object RecipeRepository {
     suspend fun fetchRecipes(query: String, page: Int = 1): List<Recipe> {
         return try {
             val response = api.getRecipes("Token 9c8b06d329136da358c2d00e76946b0111ce2c48", query, page)
+            // Convertir les recettes reçues en entités pour Room
+            val entities = response.results.map { recipe ->
+                RecipeEntity(
+                    pk = recipe.pk,
+                    title = recipe.title,
+                    featured_image = recipe.featured_image,
+                    ingredients = Gson().toJson(recipe.ingredients) // conversion de la liste en JSON
+                )
+            }
+            // Sauvegarder dans la base locale
+            database.recipeDao().insertRecipes(entities)
+            // Retourner les recettes depuis l'API
             response.results
         } catch (e: Exception) {
-            emptyList()
+            // En cas d'erreur, récupérer les recettes stockées dans le cache
+            val cachedRecipes = database.recipeDao().searchRecipes(query)
+            cachedRecipes.map { entity ->
+                Recipe(
+                    pk = entity.pk,
+                    title = entity.title,
+                    featured_image = entity.featured_image,
+                    ingredients = Gson().fromJson(entity.ingredients, Array<String>::class.java).toList()
+                )
+            }
         }
     }
+
 
     suspend fun fetchRecipeById(recipeId: String): Recipe? {
         return try {

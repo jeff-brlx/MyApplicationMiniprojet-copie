@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -27,6 +28,17 @@ import com.example.myapplicationmini_projet.utils.decodeHtml // ✅ Import depui
 @Composable
 fun RecipeListScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
     val recipes by viewModel.recipes.collectAsState()
+    val listState = rememberLazyListState()
+
+    // Détecte le scroll en fin de liste et déclenche le chargement de la page suivante
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { index ->
+                if (index == recipes.lastIndex && recipes.isNotEmpty()) {
+                    viewModel.loadNextPage()
+                }
+            }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBar { viewModel.loadRecipes(it) }
@@ -35,16 +47,31 @@ fun RecipeListScreen(navController: NavController, viewModel: RecipeViewModel = 
         }
 
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(end = 4.dp) // Réduction de la largeur de la scrollbar
+                .padding(end = 4.dp)
         ) {
             items(recipes) { recipe ->
                 RecipeCard(recipe) { navController.navigate("detail/${recipe.pk}") }
             }
+            // Affiche un indicateur de chargement en bas de liste
+            if (viewModel.isLoading.value) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
         }
     }
 }
+
 
 @Composable
 fun SearchBar(onSearch: (String) -> Unit) {

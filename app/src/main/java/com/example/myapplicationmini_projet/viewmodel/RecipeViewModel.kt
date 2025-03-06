@@ -1,5 +1,6 @@
 package com.example.myapplicationmini_projet.viewmodel
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +12,9 @@ import com.example.myapplicationmini_projet.data.Recipe
 class RecipeViewModel : ViewModel() {
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     val recipes: StateFlow<List<Recipe>> = _recipes
+
+    // Indicateur de chargement pour éviter de lancer plusieurs appels simultanés
+    val isLoading = mutableStateOf(false)
 
     private var currentPage = 1
     private var currentQuery = ""
@@ -24,15 +28,20 @@ class RecipeViewModel : ViewModel() {
             if (resetPage) {
                 currentPage = 1
                 currentQuery = query
+                _recipes.value = emptyList()
             }
-
-            val newRecipes = RecipeRepository.fetchRecipes(query)
+            // Démarrer le chargement
+            isLoading.value = true
+            val newRecipes = RecipeRepository.fetchRecipes(query, currentPage)
             _recipes.value = if (resetPage) newRecipes else _recipes.value + newRecipes
+            isLoading.value = false
         }
     }
 
     fun loadNextPage() {
-        currentPage++
-        loadRecipes(currentQuery, resetPage = false)
+        if (!isLoading.value) { // Pour éviter plusieurs chargements simultanés
+            currentPage++
+            loadRecipes(currentQuery, resetPage = false)
+        }
     }
 }
