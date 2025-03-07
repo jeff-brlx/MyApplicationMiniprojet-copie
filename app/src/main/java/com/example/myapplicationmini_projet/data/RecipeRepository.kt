@@ -48,7 +48,8 @@ object RecipeRepository {
                     pk = recipe.pk,
                     title = recipe.title,
                     featured_image = recipe.featured_image,
-                    ingredients = Gson().toJson(recipe.ingredients) // conversion de la liste en JSON
+                    ingredients = recipe.ingredients  // recipe.ingredients est déjà de type List<String>
+
                 )
             }
             // Sauvegarder dans la base locale
@@ -63,7 +64,7 @@ object RecipeRepository {
                     pk = entity.pk,
                     title = entity.title,
                     featured_image = entity.featured_image,
-                    ingredients = Gson().fromJson(entity.ingredients, Array<String>::class.java).toList()
+                    ingredients = entity.ingredients
                 )
             }
         }

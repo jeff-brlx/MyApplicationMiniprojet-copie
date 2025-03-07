@@ -10,6 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
+
         applicationId = "com.example.myapplicationmini_projet"
         minSdk = 24
         targetSdk = 35
@@ -17,6 +18,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -56,9 +58,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Room pour la base de données locale
-    implementation("androidx.room:room-runtime:2.5.0")
-    kapt("androidx.room:room-compiler:2.5.0")
-    implementation("androidx.room:room-ktx:2.5.0")
+    implementation("androidx.room:room-runtime:2.5.2")
+    kapt("androidx.room:room-compiler:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
 
     // OkHttp et Logging Interceptor
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
@@ -78,8 +80,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
 
 fun kapt(s: String) {
 
+}
+
+kapt {
+    correctErrorTypes = true
 }
