@@ -9,8 +9,9 @@ import androidx.room.Query
 interface RecipeDao {
 
     @Query("SELECT * FROM recipes WHERE title LIKE '%' || :query || '%'")
-    suspend fun searchRecipes(query: String): List<RecipeEntity>
+    fun searchRecipes(query: String): List<RecipeEntity> // ✅ Retourne une liste
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRecipes(recipes: List<RecipeEntity>)
+    fun insertRecipes(recipes: List<RecipeEntity>): List<Long> // ✅ Retourne les IDs insérés
 }
+

@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.myapplicationmini_projet.data.local.RecipeDatabase
 import com.example.myapplicationmini_projet.data.local.RecipeEntity
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -58,7 +60,10 @@ object RecipeRepository {
             response.results
         } catch (e: Exception) {
             // En cas d'erreur, récupérer les recettes stockées dans le cache
-            val cachedRecipes = database.recipeDao().searchRecipes(query)
+            //val cachedRecipes = database.recipeDao().searchRecipes(query)
+            val cachedRecipes = withContext(Dispatchers.IO) {
+                database.recipeDao().searchRecipes(query)
+            }
             cachedRecipes.map { entity ->
                 Recipe(
                     pk = entity.pk,
