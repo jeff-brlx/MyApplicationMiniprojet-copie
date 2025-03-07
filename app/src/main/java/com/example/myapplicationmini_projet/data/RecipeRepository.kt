@@ -43,34 +43,46 @@ object RecipeRepository {
 
     suspend fun fetchRecipes(query: String, page: Int = 1): List<Recipe> {
         return try {
+            println("🔍 Fetching recipes from API: query='$query', page=$page")
             val response = api.getRecipes("Token 9c8b06d329136da358c2d00e76946b0111ce2c48", query, page)
-            // Convertir les recettes reçues en entités pour Room
+
+            println("✅ API Response: total ${response.count} recipes found")
+            println("📥 Received ${response.results.size} recipes")
+
+            if (response.results.isEmpty()) {
+                println("⚠️ API returned empty list!")
+            }
+
             val entities = response.results.map { recipe ->
                 RecipeEntity(
                     pk = recipe.pk,
                     title = recipe.title,
                     featured_image = recipe.featured_image,
-                    ingredients = recipe.ingredients  // recipe.ingredients est déjà de type List<String>
-
+                    ingredients = recipe.ingredients
                 )
             }
-            // Sauvegarder dans la base locale
-            database.recipeDao().insertRecipes(entities)
-            // Retourner les recettes depuis l'API
+
+            // ✅ Effectuer l'insertion en arrière-plan
+            withContext(Dispatchers.IO) {
+                database.recipeDao().insertRecipes(entities)
+                println("💾 Saved ${entities.size} recipes in Room")
+            }
+
             response.results
         } catch (e: Exception) {
-            // En cas d'erreur, récupérer les recettes stockées dans le cache
-            //val cachedRecipes = database.recipeDao().searchRecipes(query)
-            val cachedRecipes = withContext(Dispatchers.IO) {
-                database.recipeDao().searchRecipes(query)
-            }
-            cachedRecipes.map { entity ->
-                Recipe(
-                    pk = entity.pk,
-                    title = entity.title,
-                    featured_image = entity.featured_image,
-                    ingredients = entity.ingredients
-                )
+            println("❌ API Error: ${e.message}")
+
+            withContext(Dispatchers.IO) {
+                val cachedRecipes = database.recipeDao().searchRecipes(query)
+                println("💾 Loading ${cachedRecipes.size} cached recipes from Room")
+                cachedRecipes.map { entity ->
+                    Recipe(
+                        pk = entity.pk,
+                        title = entity.title,
+                        featured_image = entity.featured_image,
+                        ingredients = entity.ingredients
+                    )
+                }
             }
         }
     }

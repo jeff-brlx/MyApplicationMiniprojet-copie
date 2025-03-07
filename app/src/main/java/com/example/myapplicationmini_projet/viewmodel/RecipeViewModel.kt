@@ -28,15 +28,20 @@ class RecipeViewModel : ViewModel() {
             if (resetPage) {
                 currentPage = 1
                 currentQuery = query
-                _recipes.value = emptyList()
+                _recipes.value = emptyList() // Vider la liste avant d'afficher les nouvelles recettes
             }
-            // Démarrer le chargement
+
             isLoading.value = true
+
+            // Charger d'abord les nouvelles recettes de l'API (ou de Room en cas d'échec)
             val newRecipes = RecipeRepository.fetchRecipes(query, currentPage)
+
             _recipes.value = if (resetPage) newRecipes else _recipes.value + newRecipes
+
             isLoading.value = false
         }
     }
+
 
     fun loadNextPage() {
         if (!isLoading.value) { // Pour éviter plusieurs chargements simultanés

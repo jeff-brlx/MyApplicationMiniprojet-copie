@@ -14,4 +14,3 @@ interface RecipeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecipes(recipes: List<RecipeEntity>): List<Long> // ✅ Retourne les IDs insérés
 }
-
