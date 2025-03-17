@@ -23,7 +23,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.food), // ✅ Utilisation du logo food.svg
+            painter = painterResource(id = R.drawable.food), //  Utilisation du logo food.svg
             contentDescription = "Food Logo",
             modifier = Modifier.size(200.dp)
         )

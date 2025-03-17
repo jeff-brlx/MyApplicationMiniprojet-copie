@@ -10,11 +10,11 @@ import androidx.room.TypeConverters
  * Définition de la base de données Room pour les recettes.
  */
 @Database(
-    entities = [RecipeEntity::class],  // La ou les entités que tu déclares
+    entities = [RecipeEntity::class],
     version = 1,
     exportSchema = false
 )
-@TypeConverters(Converters::class)     // Les convertisseurs pour listes, dates, etc.
+@TypeConverters(Converters::class)
 abstract class RecipeDatabase : RoomDatabase() {
 
     // Déclare le DAO associé
@@ -25,9 +25,7 @@ abstract class RecipeDatabase : RoomDatabase() {
         private var INSTANCE: RecipeDatabase? = null
 
         fun getDatabase(context: Context): RecipeDatabase {
-            // Vérifie si l'instance existe déjà
             return INSTANCE ?: synchronized(this) {
-                // Sinon, la construit et l'assigne à INSTANCE
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     RecipeDatabase::class.java,

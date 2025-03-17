@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 
 @Entity(tableName = "recipes")
-@TypeConverters(Converters::class)  // Ajoute cette annotation pour informer Room
+@TypeConverters(Converters::class)
 data class RecipeEntity(
     @PrimaryKey
     @ColumnInfo(name = "pk")
@@ -19,5 +19,5 @@ data class RecipeEntity(
     val featured_image: String,
 
     @ColumnInfo(name = "ingredients")
-    val ingredients: List<String>  // Assure-toi que `Converters` est bien défini
+    val ingredients: List<String>
 )

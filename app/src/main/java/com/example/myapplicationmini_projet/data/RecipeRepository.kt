@@ -43,14 +43,14 @@ object RecipeRepository {
 
     suspend fun fetchRecipes(query: String, page: Int = 1): List<Recipe> {
         return try {
-            println("🔍 Fetching recipes from API: query='$query', page=$page")
+            println(" Fetching recipes from API: query='$query', page=$page")
             val response = api.getRecipes("Token 9c8b06d329136da358c2d00e76946b0111ce2c48", query, page)
 
-            println("✅ API Response: total ${response.count} recipes found")
-            println("📥 Received ${response.results.size} recipes")
+            println("API Response: total ${response.count} recipes found")
+            println("Received ${response.results.size} recipes")
 
             if (response.results.isEmpty()) {
-                println("⚠️ API returned empty list!")
+                println("API returned empty list!")
             }
 
             val entities = response.results.map { recipe ->
@@ -62,7 +62,7 @@ object RecipeRepository {
                 )
             }
 
-            // ✅ Effectuer l'insertion en arrière-plan
+            // Effectuer l'insertion en arrière-plan
             withContext(Dispatchers.IO) {
                 database.recipeDao().insertRecipes(entities)
                 println("💾 Saved ${entities.size} recipes in Room")
@@ -70,7 +70,7 @@ object RecipeRepository {
 
             response.results
         } catch (e: Exception) {
-            println("❌ API Error: ${e.message}")
+            println(" API Error: ${e.message}")
 
             withContext(Dispatchers.IO) {
                 val cachedRecipes = database.recipeDao().searchRecipes(query)
@@ -90,11 +90,40 @@ object RecipeRepository {
 
     suspend fun fetchRecipeById(recipeId: String): Recipe? {
         return try {
-            println("Fetching recipe with ID: $recipeId") // Debugging
-            api.getRecipeById("Token 9c8b06d329136da358c2d00e76946b0111ce2c48", recipeId)
+            println("Fetching recipe with ID: $recipeId from API") // Debugging
+            val recipe = api.getRecipeById("Token 9c8b06d329136da358c2d00e76946b0111ce2c48", recipeId)
+
+            // Sauvegarder la recette dans la base locale
+            withContext(Dispatchers.IO) {
+                database.recipeDao().insertRecipes(
+                    listOf(
+                        RecipeEntity(
+                            pk = recipe.pk,
+                            title = recipe.title,
+                            featured_image = recipe.featured_image,
+                            ingredients = recipe.ingredients
+                        )
+                    )
+                )
+            }
+
+            recipe
         } catch (e: Exception) {
-            println("Error fetching recipe: ${e.message}") // Debugging
-            null
+            println(" API Error: ${e.message}, fetching from local database")
+
+            // Charger la recette depuis Room en mode hors-ligne
+            withContext(Dispatchers.IO) {
+                val cachedRecipe = database.recipeDao().getRecipeById(recipeId.toInt())
+                cachedRecipe?.let {
+                    Recipe(
+                        pk = it.pk,
+                        title = it.title,
+                        featured_image = it.featured_image,
+                        ingredients = it.ingredients
+                    )
+                }
+            }
         }
     }
+
 }

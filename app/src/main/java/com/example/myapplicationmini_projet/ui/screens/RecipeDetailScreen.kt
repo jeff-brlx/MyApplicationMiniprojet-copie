@@ -13,7 +13,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.myapplicationmini_projet.data.Recipe
 import com.example.myapplicationmini_projet.data.RecipeRepository
 import kotlinx.coroutines.launch
-import com.example.myapplicationmini_projet.utils.decodeHtml // ✅ Import depuis Utils.kt
+import com.example.myapplicationmini_projet.utils.decodeHtml //  Import depuis Utils.kt
 
 @Composable
 fun RecipeDetailScreen(recipeId: String, navController: NavController) {
@@ -49,9 +49,9 @@ fun RecipeDetailScreen(recipeId: String, navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Nettoyage du titre avec decodeHtml()
+            //  Nettoyage du titre avec decodeHtml()
             Text(
-                text = decodeHtml(currentRecipe.title), // ✅ Correction ici
+                text = decodeHtml(currentRecipe.title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -74,7 +74,7 @@ fun RecipeDetailScreen(recipeId: String, navController: NavController) {
             }
         }
 
-        // ✅ Bouton retour
+        // Bouton retour
         Button(
             onClick = { navController.navigateUp() },
             modifier = Modifier

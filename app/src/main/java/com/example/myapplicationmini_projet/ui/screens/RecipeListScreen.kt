@@ -23,7 +23,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplicationmini_projet.viewmodel.RecipeViewModel
 import com.example.myapplicationmini_projet.data.Recipe
-import com.example.myapplicationmini_projet.utils.decodeHtml // ✅ Import depuis Utils.kt
+import com.example.myapplicationmini_projet.utils.decodeHtml //  Import depuis Utils.kt
 
 @Composable
 fun RecipeListScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
@@ -144,7 +144,7 @@ fun RecipeCard(recipe: Recipe, onClick: () -> Unit) {
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
             )
             Text(
-                text = decodeHtml(recipe.title), // ✅ Nettoie les caractères HTML des titres
+                text = decodeHtml(recipe.title), //  Nettoie les caractères HTML des titres
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 modifier = Modifier.padding(8.dp)
